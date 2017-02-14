@@ -6,10 +6,41 @@
     <script type="text/javascript"
             src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.js"></script>
     <link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="custom.css" rel="stylesheet">
     <script src="lib/bootstrap/js/bootstrap.min.js"></script>
 </head>
 <body>
-<p align="center">Domain users utility</p>
+
+<script type="application/javascript">
+    let caret = ' <span class=\'caret\'></span>';
+
+    function changeInnerHTML(btnId, value) {
+        document.getElementById(btnId).innerHTML = value + caret;
+    }
+
+    function changeElementValue(elementId, value) {
+        document.getElementById(elementId).value = value;
+    }
+
+    function selectOrder(order, value) {
+        let elemId = 'orderValue';
+
+        changeInnerHTML(elemId, value);
+        changeElementValue(elemId, order);
+        listUsers();
+    }
+
+    function selectFindType(type, value) {
+        let btnId = 'findByBtn';
+
+        changeInnerHTML(btnId, value);
+        document.getElementById(btnId).value = type;
+    }
+
+</script>
+
+<p align="center">
+<h3 align="center">Domain users utility</h3></p>
 
 <!--Add buttons to initiate auth sequence and sign out-->
 <div align="center">
@@ -17,13 +48,56 @@
     <button id="signout-button" class="btn btn-xs btn-default" style="display: none;">Sign Out</button>
 </div>
 
-<div class="container">
-    <table id="users-table" class="table table-hover" style="display: none;">
+<br/>
+
+<div id="content" class="container" style="display: none;">
+    <table>
+        <tr>
+            <td>
+                <div class="dropdown">
+                    <label for="orderValue">Order by:</label>
+                    <button id="orderValue" class="btn btn-sm btn-default dropdown" data-toggle="dropdown"
+                            aria-haspopup="true"
+                            aria-expanded="true">Order by <span class="caret"></span></button>
+                    <ul class="dropdown-menu">
+                        <li><a href="#" onclick="selectOrder('familyName', this.innerHTML)">Firstname</a></li>
+                        <li><a href="#" onclick="selectOrder('givenName', this.innerHTML)">Lastname</a></li>
+                        <li><a href="#" onclick="selectOrder('email', this.innerHTML)">Email</a></li>
+                    </ul>
+                </div>
+            </td>
+            <td>
+                <a href="#"><i class="glyphicon glyphicon-sort" style="color: #0f0f0f"></i></a>
+            </td>
+            <td>
+                <div class="dropdown">
+                    <label for="findByBtn">Find by:</label>
+                    <button id="findByBtn" class="btn btn-sm btn-default dropdown" data-toggle="dropdown"
+                            aria-haspopup="true"
+                            aria-expanded="true">Find by <span class="caret"></span></button>
+                    <ul class="dropdown-menu">
+                        <li><a href="#" onclick="selectFindType('familyName', this.innerHTML)">Firstname</a></li>
+                        <li><a href="#" onclick="selectFindType('givenName', this.innerHTML)">Lastname</a></li>
+                        <li><a href="#" onclick="selectFindType('givenName', this.innerHTML)">Email</a></li>
+                    </ul>
+                </div>
+            </td>
+            <td>
+                <input id="queryParam" type="text" class="form-control"/>
+            </td>
+            <td>
+                <button id="searchBtn" class="btn btn-sm btn-default">Search</button>
+            </td>
+        </tr>
+    </table>
+    <br/>
+    <table id="users-table" class="table table-hover">
         <thead>
         <tr>
             <th>Firstname</th>
             <th>Lastname</th>
             <th>Email</th>
+            <th>Last login time</th>
         </tr>
         </thead>
         <tbody>
@@ -44,7 +118,7 @@
 
     let authorizeButton = document.getElementById('signin-button');
     let signoutButton = document.getElementById('signout-button');
-    let usersTable = document.getElementById('users-table');
+    let content = document.getElementById('content');
 
     /**
      *  On load, called to load the auth2 library and API client library.
@@ -61,7 +135,7 @@
         gapi.client.init({
             discoveryDocs: DISCOVERY_DOCS,
             clientId: CLIENT_ID,
-            scope: SCOPES
+            scope: SCOPES,
         }).then(function () {
             // Listen for sign-in state changes.
             gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
@@ -81,12 +155,12 @@
         if (isSignedIn) {
             authorizeButton.style.display = 'none';
             signoutButton.style.display = 'block';
-            usersTable.style.display = '';
+            content.style.display = '';
             listUsers();
         } else {
             authorizeButton.style.display = 'block';
             signoutButton.style.display = 'none';
-            usersTable.style.display = 'none';
+            content.style.display = 'none';
         }
     }
 
@@ -105,7 +179,7 @@
     }
 
     function appendRow(rowData) {
-        let row = usersTable.getElementsByTagName('tbody')[0].insertRow(usersTable.length);
+        let row = document.getElementById('users-table').getElementsByTagName('tbody')[0].insertRow(content.length);
 
         for (let data of rowData) {
             row.insertCell(row.length).innerHTML = data;
@@ -117,22 +191,27 @@
     }
 
     /**
-     * Print the first 10 users in the domain.
+     * Print users in the domain.
      */
     function listUsers() {
-        clearTable();
+        let order = document.getElementById('orderValue').value;
+//        let query = document.getElementById('queryValue').value;
+
         gapi.client.directory.users.list({
-            'customer': 'my_customer',
-            'maxResults': 10,
-            'orderBy': 'email'
+            customer: 'my_customer',
+            maxResults: 10,
+            orderBy: order ? order : 'email',
+//            query: query ? query : ''
         }).then(function (response) {
+            clearTable();
+
             let users = response.result.users;
 
             if (users && users.length > 0) {
                 for (i = 0; i < users.length; i++) {
                     let user = users[i];
                     console.log(user);
-                    appendRow([user.name.givenName, user.name.familyName, user.primaryEmail]);
+                    appendRow([user.name.givenName, user.name.familyName, user.primaryEmail, user.lastLoginTime]);
                 }
             } else {
                 alert('No users found.');
