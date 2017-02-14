@@ -31,10 +31,10 @@
     }
 
     function selectFindType(type, value) {
-        let btnId = 'findByBtn';
+        let btnId = 'findByType';
 
         changeInnerHTML(btnId, value);
-        document.getElementById(btnId).value = type;
+        changeElementValue(btnId, type);
     }
 
 </script>
@@ -60,8 +60,8 @@
                             aria-haspopup="true"
                             aria-expanded="true">Order by <span class="caret"></span></button>
                     <ul class="dropdown-menu">
-                        <li><a href="#" onclick="selectOrder('familyName', this.innerHTML)">Firstname</a></li>
-                        <li><a href="#" onclick="selectOrder('givenName', this.innerHTML)">Lastname</a></li>
+                        <li><a href="#" onclick="selectOrder('givenName', this.innerHTML)">Firstname</a></li>
+                        <li><a href="#" onclick="selectOrder('familyName', this.innerHTML)">Lastname</a></li>
                         <li><a href="#" onclick="selectOrder('email', this.innerHTML)">Email</a></li>
                     </ul>
                 </div>
@@ -71,14 +71,14 @@
             </td>
             <td>
                 <div class="dropdown">
-                    <label for="findByBtn">Find by:</label>
-                    <button id="findByBtn" class="btn btn-sm btn-default dropdown" data-toggle="dropdown"
+                    <label for="findByType">Find by:</label>
+                    <button id="findByType" class="btn btn-sm btn-default dropdown" data-toggle="dropdown"
                             aria-haspopup="true"
                             aria-expanded="true">Find by <span class="caret"></span></button>
                     <ul class="dropdown-menu">
-                        <li><a href="#" onclick="selectFindType('familyName', this.innerHTML)">Firstname</a></li>
-                        <li><a href="#" onclick="selectFindType('givenName', this.innerHTML)">Lastname</a></li>
-                        <li><a href="#" onclick="selectFindType('givenName', this.innerHTML)">Email</a></li>
+                        <li><a href="#" onclick="selectFindType('givenName', this.innerHTML)">Firstname</a></li>
+                        <li><a href="#" onclick="selectFindType('familyName', this.innerHTML)">Lastname</a></li>
+                        <li><a href="#" onclick="selectFindType('email', this.innerHTML)">Email</a></li>
                     </ul>
                 </div>
             </td>
@@ -86,7 +86,7 @@
                 <input id="queryParam" type="text" class="form-control"/>
             </td>
             <td>
-                <button id="searchBtn" class="btn btn-sm btn-default">Search</button>
+                <button id="searchBtn" class="btn btn-sm btn-default" onclick="listUsers()">Search</button>
             </td>
         </tr>
     </table>
@@ -195,13 +195,16 @@
      */
     function listUsers() {
         let order = document.getElementById('orderValue').value;
-//        let query = document.getElementById('queryValue').value;
+        let queryParam = document.getElementById('queryParam').value;
+        let findType = document.getElementById('findByType').value;
+        let query = queryParam ? findType + ':' + queryParam + '*' : '';
+        console.log(query);
 
         gapi.client.directory.users.list({
             customer: 'my_customer',
             maxResults: 10,
             orderBy: order ? order : 'email',
-//            query: query ? query : ''
+            query: query
         }).then(function (response) {
             clearTable();
 
