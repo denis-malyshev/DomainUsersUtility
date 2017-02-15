@@ -6,26 +6,22 @@
     <script type="text/javascript"
             src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.js"></script>
     <link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link href="custom.css" rel="stylesheet">
     <script src="lib/bootstrap/js/bootstrap.min.js"></script>
+
+    <link href="custom.css" rel="stylesheet">
+
+    <script type="application/javascript" src="utils/commonUtils.js"></script>
+
 </head>
 <body>
 
 <script type="application/javascript">
     let caret = ' <span class=\'caret\'></span>';
 
-    function changeInnerHTML(btnId, value) {
-        document.getElementById(btnId).innerHTML = value + caret;
-    }
-
-    function changeElementValue(elementId, value) {
-        document.getElementById(elementId).value = value;
-    }
-
     function selectOrder(order, value) {
         let elemId = 'orderValue';
 
-        changeInnerHTML(elemId, value);
+        changeInnerHTML(elemId, value + caret);
         changeElementValue(elemId, order);
         listUsers();
     }
@@ -33,7 +29,7 @@
     function selectFindType(type, value) {
         let btnId = 'findByType';
 
-        changeInnerHTML(btnId, value);
+        changeInnerHTML(btnId, value + caret);
         changeElementValue(btnId, type);
     }
 
@@ -182,62 +178,56 @@
         gapi.auth2.getAuthInstance().signOut();
     }
 
-    function appendRow(rowData) {
-        let row = document.getElementById('users-table').getElementsByTagName('tbody')[0].insertRow(content.length);
-
-        for (let data of rowData) {
-            row.insertCell(row.length).innerHTML = data;
-        }
-    }
-
-    function clearTable() {
-        $('#users-table tbody').empty();
+    /**
+     * Print users in the domain.
+     */
+    function listUsers() {
+        let requestParams = buildRequestParams();
+        gapi.client.directory.users.list(requestParams).then(function (response) {
+            updateUsersTable(response.result.users, requestParams.order, requestParams.sortOrder);
+        });
     }
 
     function compareByLastLogin(u1, u2) {
         return Math.sign(Date.parse(u1.lastLoginTime) - Date.parse(u2.lastLoginTime));
     }
-    /**
-     * Print users in the domain.
-     */
-    function listUsers() {
+
+    function updateUsersTable(users, order, sortOrder) {
+        clearTable('users-table');
+
+        if (users && users.length > 0) {
+            if (order == 'lastLogin') {
+                users.sort((u2, u1) => compareByLastLogin(u1, u2));
+
+                if (sortOrder == 'DESCENDING') {
+                    users.reverse();
+                }
+            }
+
+            for (let i = 0; i < users.length; i++) {
+                let user = users[i];
+                appendRow('users-table', [user.name.givenName, user.name.familyName, user.primaryEmail, user.lastLoginTime, user.suspended ? 'yse' : 'no']);
+            }
+        } else {
+            alert('No users found.');
+        }
+    }
+
+    function buildRequestParams() {
         let order = document.getElementById('orderValue').value;
         let sortOrder = document.getElementById('sortOrderLink').value == true ? 'ASCENDING' : 'DESCENDING';
         let queryParam = document.getElementById('queryParam').value;
         let findType = document.getElementById('findByType').value;
         let query = queryParam ? findType + ':' + queryParam + '*' : '';
 
-        gapi.client.directory.users.list({
+        return {
             customer: 'my_customer',
-            maxResults: 10,
+            maxResults: 500,
             orderBy: order && order != 'lastLogin' ? order : 'givenName',
             sortOrder: sortOrder,
             query: query
-        }).then(function (response) {
-            clearTable();
-
-            let users = response.result.users;
-
-            if (users && users.length > 0) {
-                if (order == 'lastLogin') {
-                    users.sort((u2, u1) => compareByLastLogin(u1, u2));
-
-                    if (sortOrder == 'DESCENDING') {
-                        users.reverse();
-                    }
-                }
-
-                for (let i = 0; i < users.length; i++) {
-                    let user = users[i];
-                    console.log(user);
-                    appendRow([user.name.givenName, user.name.familyName, user.primaryEmail, user.lastLoginTime, user.suspended ? 'yse' : 'no']);
-                }
-            } else {
-                alert('No users found.');
-            }
-        });
+        };
     }
-
 </script>
 
 <script async defer src="https://apis.google.com/js/api.js"
