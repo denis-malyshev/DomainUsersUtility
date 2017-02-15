@@ -101,6 +101,7 @@
             <th>Lastname</th>
             <th>Email</th>
             <th>Last login time</th>
+            <th>Suspended</th>
         </tr>
         </thead>
         <tbody>
@@ -229,7 +230,7 @@
                 for (let i = 0; i < users.length; i++) {
                     let user = users[i];
                     console.log(user);
-                    appendRow([user.name.givenName, user.name.familyName, user.primaryEmail, user.lastLoginTime]);
+                    appendRow([user.name.givenName, user.name.familyName, user.primaryEmail, user.lastLoginTime, user.suspended ? 'yse' : 'no']);
                 }
             } else {
                 alert('No users found.');
