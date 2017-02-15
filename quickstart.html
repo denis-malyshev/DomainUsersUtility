@@ -67,7 +67,9 @@
                 </div>
             </td>
             <td>
-                <a href="#" id="sortOrderLink" value="false" onclick="this.value ^= 1; listUsers()"><i class="glyphicon glyphicon-sort" style="color: #0f0f0f"></i></a>
+                <button id="sortOrderLink" value="1" onclick="this.value ^= 1; listUsers(); this.blur();"
+                        class="btn btn-sm btn-link"><i class="glyphicon glyphicon-sort" style="color: #0f0f0f"></i>
+                </button>
             </td>
             <td>
                 <div class="dropdown">
@@ -195,7 +197,7 @@
      */
     function listUsers() {
         let order = document.getElementById('orderValue').value;
-        let sortOrder = document.getElementById('sortOrderLink').value ? 'ASCENDING' : 'DESCENDING';
+        let sortOrder = document.getElementById('sortOrderLink').value == true ? 'ASCENDING' : 'DESCENDING';
         let queryParam = document.getElementById('queryParam').value;
         let findType = document.getElementById('findByType').value;
         let query = queryParam ? findType + ':' + queryParam + '*' : '';
