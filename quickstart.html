@@ -63,6 +63,7 @@
                         <li><a href="#" onclick="selectOrder('givenName', this.innerHTML)">Firstname</a></li>
                         <li><a href="#" onclick="selectOrder('familyName', this.innerHTML)">Lastname</a></li>
                         <li><a href="#" onclick="selectOrder('email', this.innerHTML)">Email</a></li>
+                        <li><a href="#" onclick="selectOrder('lastLogin', this.innerHTML)">Last login</a></li>
                     </ul>
                 </div>
             </td>
@@ -192,6 +193,9 @@
         $('#users-table tbody').empty();
     }
 
+    function compareByLastLogin(u1, u2) {
+        return Math.sign(Date.parse(u1.lastLoginTime) - Date.parse(u2.lastLoginTime));
+    }
     /**
      * Print users in the domain.
      */
@@ -201,13 +205,11 @@
         let queryParam = document.getElementById('queryParam').value;
         let findType = document.getElementById('findByType').value;
         let query = queryParam ? findType + ':' + queryParam + '*' : '';
-        console.log(query);
-        console.log(sortOrder);
 
         gapi.client.directory.users.list({
             customer: 'my_customer',
             maxResults: 10,
-            orderBy: order ? order : 'email',
+            orderBy: order && order != 'lastLogin' ? order : 'givenName',
             sortOrder: sortOrder,
             query: query
         }).then(function (response) {
@@ -216,7 +218,15 @@
             let users = response.result.users;
 
             if (users && users.length > 0) {
-                for (i = 0; i < users.length; i++) {
+                if (order == 'lastLogin') {
+                    users.sort((u2, u1) => compareByLastLogin(u1, u2));
+
+                    if (sortOrder == 'DESCENDING') {
+                        users.reverse();
+                    }
+                }
+
+                for (let i = 0; i < users.length; i++) {
                     let user = users[i];
                     console.log(user);
                     appendRow([user.name.givenName, user.name.familyName, user.primaryEmail, user.lastLoginTime]);
