@@ -67,7 +67,7 @@
                 </div>
             </td>
             <td>
-                <a href="#"><i class="glyphicon glyphicon-sort" style="color: #0f0f0f"></i></a>
+                <a href="#" id="sortOrderLink" value="false" onclick="this.value ^= 1; listUsers()"><i class="glyphicon glyphicon-sort" style="color: #0f0f0f"></i></a>
             </td>
             <td>
                 <div class="dropdown">
@@ -195,15 +195,18 @@
      */
     function listUsers() {
         let order = document.getElementById('orderValue').value;
+        let sortOrder = document.getElementById('sortOrderLink').value ? 'ASCENDING' : 'DESCENDING';
         let queryParam = document.getElementById('queryParam').value;
         let findType = document.getElementById('findByType').value;
         let query = queryParam ? findType + ':' + queryParam + '*' : '';
         console.log(query);
+        console.log(sortOrder);
 
         gapi.client.directory.users.list({
             customer: 'my_customer',
             maxResults: 10,
             orderBy: order ? order : 'email',
+            sortOrder: sortOrder,
             query: query
         }).then(function (response) {
             clearTable();
