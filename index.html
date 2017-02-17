@@ -9,53 +9,48 @@
     <link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <script src="lib/bootstrap/js/bootstrap.min.js"></script>
 
-    <link href="lib/css/custom.css" rel="stylesheet">
+    <link href="lib/css/styles.css" rel="stylesheet">
     <script type="application/javascript" src="common/utils.js"></script>
+    <script type="application/javascript" src="common/sorttable.js"></script>
 
 </head>
 <body>
 
 <script type="application/javascript">
-    let caret = ' <span class=\'caret\'></span>';
+    const CARET = '<span class=\'caret\'></span>';
 
-    function updateContent() {
-        let requestParams = buildRequestParams();
-        listUsers(requestParams).then(function (users) {
-            updateUsersTable(users, requestParams.order, requestParams.sortOrder);
-        });
+    let requestParams = {
+        customer: 'my_customer',
+        maxResults: 500,
+        orderBy: 'givenName',
+        query: ''
+    };
+
+    function updateRequestParams() {
+        let value = document.getElementById('queryParam').value;
+        requestParams.query = value ? $('#findByType').val().concat(':') + value.concat('*') : '';
+        console.log(requestParams);
     }
 
-    function selectOrder(order, value) {
-        let elemId = 'orderValue';
+    function updateContent() {
+        updateRequestParams();
 
-        changeInnerHTML(elemId, value + caret);
-        changeElementValue(elemId, order);
-        updateContent();
+        listUsers(requestParams).then(function (users) {
+            updateUsersTable(users);
+        });
     }
 
     function selectFindType(type, value) {
         let btnId = 'findByType';
 
-        changeInnerHTML(btnId, value + caret);
+        changeInnerHTML(btnId, value + CARET);
         changeElementValue(btnId, type);
     }
 
-    function compareByLastLogin(u1, u2) {
-        return Math.sign(Date.parse(u1.lastLoginTime) - Date.parse(u2.lastLoginTime));
-    }
-
-    function updateUsersTable(users, order, sortOrder) {
+    function updateUsersTable(users) {
         clearTable('users-table');
 
         if (users && users.length > 0) {
-            if (order == 'lastLogin') {
-                users.sort((u2, u1) => compareByLastLogin(u1, u2));
-
-                if (sortOrder == 'DESCENDING') {
-                    users.reverse();
-                }
-            }
-
             for (let i = 0; i < users.length; i++) {
                 let user = users[i];
                 appendRow('users-table', [user.name.givenName, user.name.familyName, user.primaryEmail, user.lastLoginTime, user.suspended ? 'yse' : 'no']);
@@ -65,21 +60,6 @@
         }
     }
 
-    function buildRequestParams() {
-        let order = document.getElementById('orderValue').value;
-        let sortOrder = document.getElementById('sortOrderLink').value == true ? 'ASCENDING' : 'DESCENDING';
-        let queryParam = document.getElementById('queryParam').value;
-        let findType = document.getElementById('findByType').value;
-        let query = queryParam ? findType + ':' + queryParam + '*' : '';
-
-        return {
-            customer: 'my_customer',
-            maxResults: 500,
-            orderBy: order && order != 'lastLogin' ? order : 'givenName',
-            sortOrder: sortOrder,
-            query: query
-        };
-    }
 </script>
 
 <p align="center">
@@ -97,30 +77,10 @@
         <tr>
             <td>
                 <div class="dropdown">
-                    <label for="orderValue">Order by:</label>
-                    <button id="orderValue" class="btn btn-sm btn-default dropdown" data-toggle="dropdown"
-                            value="givenName"
-                            aria-haspopup="true"
-                            aria-expanded="true">Firstname<span class="caret"></span></button>
-                    <ul class="dropdown-menu">
-                        <li><a href="#" onclick="selectOrder('givenName', this.innerHTML)">Firstname</a></li>
-                        <li><a href="#" onclick="selectOrder('familyName', this.innerHTML)">Lastname</a></li>
-                        <li><a href="#" onclick="selectOrder('email', this.innerHTML)">Email</a></li>
-                        <li><a href="#" onclick="selectOrder('lastLogin', this.innerHTML)">Last login</a></li>
-                    </ul>
-                </div>
-            </td>
-            <td>
-                <button id="sortOrderLink" value="1" onclick="this.value ^= 1; updateContent(); this.blur();"
-                        class="btn btn-sm btn-link"><i class="glyphicon glyphicon-sort" style="color: #0f0f0f"></i>
-                </button>
-            </td>
-            <td>
-                <div class="dropdown">
                     <label for="findByType">Find by:</label>
                     <button id="findByType" class="btn btn-sm btn-default dropdown" data-toggle="dropdown"
-                            aria-haspopup="true"
-                            aria-expanded="true">Find by <span class="caret"></span></button>
+                            aria-haspopup="true" value="givenName"
+                            aria-expanded="true">Firstname<span class="caret"></span></button>
                     <ul class="dropdown-menu">
                         <li><a href="#" onclick="selectFindType('givenName', this.innerHTML)">Firstname</a></li>
                         <li><a href="#" onclick="selectFindType('familyName', this.innerHTML)">Lastname</a></li>
@@ -129,7 +89,7 @@
                 </div>
             </td>
             <td>
-                <input id="queryParam" type="text" class="form-control"/>
+                <input id="queryParam" type="text" class="form-control">
             </td>
             <td>
                 <button id="searchBtn" class="btn btn-sm btn-default" onclick="updateContent()">Search</button>
@@ -137,7 +97,7 @@
         </tr>
     </table>
     <br/>
-    <table id="users-table" class="table table-hover">
+    <table id="users-table" class="table table-hover table-bordered sortable">
         <thead>
         <tr>
             <th>Firstname</th>
