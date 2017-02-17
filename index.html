@@ -18,6 +18,7 @@
 
 <script type="application/javascript">
     const CARET = '<span class=\'caret\'></span>';
+    const usersTableId = 'users-table';
 
     let requestParams = {
         customer: 'my_customer',
@@ -29,7 +30,6 @@
     function updateRequestParams() {
         let value = document.getElementById('queryParam').value;
         requestParams.query = value ? $('#findByType').val().concat(':') + value.concat('*') : '';
-        console.log(requestParams);
     }
 
     function updateContent() {
@@ -48,12 +48,12 @@
     }
 
     function updateUsersTable(users) {
-        clearTable('users-table');
+        clearTable(usersTableId);
 
         if (users && users.length > 0) {
             for (let i = 0; i < users.length; i++) {
                 let user = users[i];
-                appendRow('users-table', [user.name.givenName, user.name.familyName, user.primaryEmail, user.lastLoginTime, user.suspended ? 'yse' : 'no']);
+                appendRow(usersTableId, [user.name.givenName, user.name.familyName, user.primaryEmail, user.lastLoginTime, user.suspended ? 'yse' : 'no']);
             }
         } else {
             alert('No users found.');
@@ -97,7 +97,7 @@
         </tr>
     </table>
     <br/>
-    <table id="users-table" class="table table-hover table-bordered sortable">
+    <table id="users-table" class="table table-hover table-bordered sortable scrollable">
         <thead>
         <tr>
             <th>Firstname</th>
