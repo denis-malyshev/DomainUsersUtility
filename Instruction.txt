@@ -4,7 +4,7 @@ RUN INSTRUCTION
 =====================================================================================================================
 Notes: To run this utility you must have google account with the permission - Admin API Privileges->Users->Read.
 ---------------------------------------------------------------------------------------------------------------------
-If you haven't an account with required permissions, but you want to try this utility work, use following credentials:
+If you haven't an account with required permissions, but you want to try this utility, use following credentials:
     username - jey_m@lafodinsons.com
     password - example2017
 ---------------------------------------------------------------------------------------------------------------------
