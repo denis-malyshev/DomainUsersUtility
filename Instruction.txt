@@ -12,7 +12,7 @@ Run instruction
 ---------------------------------------------------------------------------------------------------------------------
     1. To run this utility you should run local HTTP server in the utility directory
     with port  number - 8080
-    2. Next, you can open index.html
+    2. Open index.html
 
     Or you can perform following steps:
 
