@@ -53,7 +53,7 @@
         if (users && users.length > 0) {
             for (let i = 0; i < users.length; i++) {
                 let user = users[i];
-                appendRow(usersTableId, [user.name.givenName, user.name.familyName, user.primaryEmail, user.lastLoginTime, user.suspended ? 'yse' : 'no']);
+                appendRow(usersTableId, [user.name.givenName, user.name.familyName, user.primaryEmail, user.lastLoginTime, user.suspended ? 'no' : 'yes']);
             }
         } else {
             alert('No users found.');
@@ -66,7 +66,7 @@
 <h3 align="center">Domain users utility</h3></p>
 
 <!--Add buttons to initiate auth sequence and sign out-->
-<div align="center">
+<div class="container" align="right">
     <button id="signin-button" class="btn btn-xs btn-success" style="display: none;">Sign in</button>
     <button id="signout-button" class="btn btn-xs btn-default" style="display: none;">Sign Out</button>
 </div>
@@ -97,14 +97,14 @@
         </tr>
     </table>
     <br/>
-    <table id="users-table" class="table table-hover table-bordered sortable scrollable">
+    <table id="users-table" class="table table-hover table-bordered sortable">
         <thead>
         <tr>
             <th>Firstname</th>
             <th>Lastname</th>
             <th>Email</th>
-            <th>Last login time</th>
-            <th>Suspended</th>
+            <th>Last login</th>
+            <th>Active</th>
         </tr>
         </thead>
         <tbody>
