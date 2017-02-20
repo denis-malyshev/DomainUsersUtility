@@ -40,6 +40,17 @@
         });
     }
 
+    function updateContentWithoutFilters() {
+        listUsers({
+            customer: 'my_customer',
+            maxResults: 500,
+            orderBy: 'givenName',
+            query: ''
+        }).then(function (users) {
+            updateUsersTable(users);
+        });
+    }
+
     function selectFindType(type, value) {
         let btnId = 'findByType';
 
@@ -93,6 +104,9 @@
             </td>
             <td>
                 <button id="searchBtn" class="btn btn-sm btn-default" onclick="updateContent()">Search</button>
+            </td>
+            <td>
+                <button id="finAllBtn" class="btn btn-sm btn-default" onclick="updateContentWithoutFilters()">Find all</button>
             </td>
         </tr>
     </table>
