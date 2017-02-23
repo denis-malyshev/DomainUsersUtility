@@ -7,22 +7,12 @@ var COLUMN_COUNT = 5;
  */
 function onOpen() {
   SpreadsheetApp.getUi().createMenu('Domain Users')
-  .addItem('Show Sidebar', 'showSidebar')
-  .addSeparator()
   .addItem('Find All Users', 'updateSheet')
   .addToUi();
 }
 
 function setDateFormat() {
   sheet.getRange(2, 4, MAX_RESULT, 1).setNumberFormat("MMM dd, yyyy");
-}
-
-/**
- * Show the sidebar.
- */
-function showSidebar() {
-  var sidebar = HtmlService.createHtmlOutputFromFile('Sidebar').setTitle('Domain Users Utility');
-  SpreadsheetApp.getUi().showSidebar(sidebar);
 }
 
 function updateSheet() {
